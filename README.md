@@ -28,3 +28,13 @@ Frontend - User typing in commands to the bot.
 Web Server - Raspberry Pi running the bot. Here the commands will be received and processed, and requests to the database will be made as needed.
 
 Database -  MySQL database running on the Raspberry Pi.
+
+### Sources
+
+[DiscordJS](https://discordjs.guide/#before-you-begin)
+
+
+### Docs
+
+[DiscordJS](https://discord.js.org/#/docs/main/stable/general/welcome)
+[Discord](https://discord.com/developers/docs/intro)
