@@ -49,3 +49,13 @@ Database -  MySQL database running on the Raspberry Pi.
 ### May be useful
 
 [RAWG Video Games Database](https://rapidapi.com/accujazz/api/rawg-video-games-database/details) -  I can use this to help build up an embed with the discord bot and gather details about the game, an image of it, etc. NOTE: When making requests to the API, need to use '-' instead of a space for titles. For example, Among Us is 'Among-Us'.
+
+### Ideas
+
+Different color embed depending on event.
+
+General Events, Games, Chatting, etc.
+
+2 ways to create a plan.
+1. enter `!plan`, triggering a dm conversation with the bot to fill out the separate fields to build up the embed for the event.
+2. enter `!qplan` followed by the required fields seperated by commas. For example `!qplan Game, Among Us, Weekly among us games!, 09/22/2020 12:00 AM EST`

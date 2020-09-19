@@ -1,4 +1,4 @@
-// Imports
+// Modules
 const fs = require('fs');
 const Discord = require('discord.js');
 require('dotenv').config();
@@ -75,13 +75,6 @@ client.on('message', message => {
 		console.error(error);
 		message.reply('there was an error trying to execute that command!');
 	}
-	// Just for referencing and learning
-	// else if (message.content === `${prefix}server`) {
-	// 	message.channel.send(`This server's name is: ${message.guild.name}`);
-	// }
-	// else if (message.content === `${prefix}user-info`) {
-	// 	message.channel.send(`Your username: ${message.author.username}\nYour ID: ${message.author.id}`);
-	// }
 });
 
 client.login(process.env.BOT_TOKEN);
