@@ -38,3 +38,14 @@ Database -  MySQL database running on the Raspberry Pi.
 
 [DiscordJS](https://discord.js.org/#/docs/main/stable/general/welcome)
 [Discord](https://discord.com/developers/docs/intro)
+
+### Useful Notes
+
+* If you need to access your client instance from inside one of your command files, you can access it via message.client. If you need to access things such as external files or modules, you should re-require them at the top of the file.
+
+[Apollo](https://top.gg/bot/475744554910351370) - Another bot that does this. Could be a useful reference to try and mimic some functionality.
+
+
+### May be useful
+
+[RAWG Video Games Database](https://rapidapi.com/accujazz/api/rawg-video-games-database/details) -  I can use this to help build up an embed with the discord bot and gather details about the game, an image of it, etc. NOTE: When making requests to the API, need to use '-' instead of a space for titles. For example, Among Us is 'Among-Us'.
