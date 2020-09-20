@@ -38,6 +38,7 @@ Database -  MySQL database running on the Raspberry Pi.
 
 [DiscordJS](https://discord.js.org/#/docs/main/stable/general/welcome)
 [Discord](https://discord.com/developers/docs/intro)
+[Discord Bot Help](https://maah.gitbooks.io/discord-bots/content/)
 
 ### Useful Notes
 
