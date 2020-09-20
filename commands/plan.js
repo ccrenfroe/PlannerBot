@@ -11,27 +11,40 @@ module.exports = {
     // The command operations go here.
     execute(message, args) 
     {
-        message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
-        message.channel.awaitMessages(response => response.author.id === message.author.id && response.content.length < 10, 
+        message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");        
+        var title = collector(message,20);
+        message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)");        
+        var description = collector(message, 2000);
+
+        const eventEmbed = new Discord.MessageEmbed()
+        .setColor('RANDOM')
+        .setTitle(title)
+        .setAuthor(message.author.username)
+        .setDescription(description)
+        .setImage();
+        message.channel.send(eventEmbed);
+    },
+};
+
+//TO-DO : Add a flag for a none option?
+function collector(message,limit) 
+{
+    message.channel.awaitMessages(response => response.author.id === message.author.id, 
         {
             max: 1,
             time: 10000,
             errors:['time'],
         })
         .then((collected) => {
-            message.author.send(`I collected the message : ${collected.first().content}`);
-            let title = collected.first().content;
+            if (collected.first().content.length < limit)
+            {
+                message.author.send(`I collected the message : ${collected.first().content}`);
+                return collected.first().content;
+            }
+            //else
+            collector(limit);
         })
         .catch(() => {
             message.author.send("No message collected after 10 seconds.")
         })
-
-        const eventEmbed = new Discord.MessageEmbed()
-        .setColor('RANDOM')
-        .setTitle(title)
-        .setAuthor(message.author.username)
-        .setDescription("help")
-        .setImage();
-        message.channel.send(eventEmbed);
-	},
-};
+}
