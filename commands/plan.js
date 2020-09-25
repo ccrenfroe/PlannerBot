@@ -15,13 +15,12 @@ module.exports = {
     },
 };
 
-//TO-DO : Add a flag for a none option?
 async function collector(message,limit) 
 {
-    message.channel.awaitMessages(response => response.author.id === message.author.id, 
+    return message.channel.awaitMessages(response => response.author.id === message.author.id, 
         {
             max: 1,
-            time: 10000,
+            time: 60000,
             errors:['time'],
         })
         .then((collected) => {
@@ -31,10 +30,11 @@ async function collector(message,limit)
                 return collected.first().content;
             }
             //else
-            collector(limit);
+            message.author.send("Invalid input. Please try again. (Must be below 200 characters)");
+            return collector(message,200);
         })
         .catch(() => {
-            message.author.send("No message collected after 10 seconds.")
+            message.author.send("No message collected after 1 minute. Cancelling plan.")
         })
 }
 
