@@ -15,7 +15,13 @@ module.exports = {
     },
 };
 
-async function collector(message,limit) 
+/**
+ * Collect the user input.
+ * @param  {Discord.Message}    message     
+ * @param  {Number}             limit       Max amount of characters allowed.
+ * @return {String}                         The collected user input.
+ */
+async function collector(message,limit, none=false) 
 {
     return message.channel.awaitMessages(response => response.author.id === message.author.id, 
         {
@@ -24,33 +30,60 @@ async function collector(message,limit)
             errors:['time'],
         })
         .then((collected) => {
-            if (collected.first().content.length < limit)
+            if (none === true && collected.first().content.toLowerCase() == "none")
             {
-                //console.log(`I collected the message : ${collected.first().content}`);
+                console.log("entered");
+                return null;
+            }
+            else if (collected.first().content.length < limit)
+            {
+                //console.log(`I collected the message : ${collected.first().content}`); // Debugging line
                 return collected.first().content;
             }
-            //else
-            message.author.send("Invalid input. Please try again. (Must be below 200 characters)");
-            return collector(message,200);
+
+            else
+            {
+                message.author.send("Invalid input. Please try again. (Must be below 200 characters)");
+                return collector(message,200);
+            }
+
         })
         .catch(() => {
             message.author.send("No message collected after 1 minute. Cancelling plan.")
         })
 }
 
+/**
+ * Collect the user input.
+ * @param  {Discord.Message}        message          
+ * @return {Discord.MessageEmbed}               The built up embed.
+ */
 async function embedBuilder(message)
 {
     message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
     const title = await collector(message,200);
-    message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)");
-    const description = await collector(message,2000);
-    const eventEmbed = new Discord.MessageEmbed()
-    .setColor('RANDOM')
-    .setTitle(title)
-    .setAuthor(message.author.username)
-    .setDescription(description)
-    .setImage();
+    message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
+    const description = await collector(message,2000,true);
+    if (description != null) // Build embed with description
+    {
+        var eventEmbed = new Discord.MessageEmbed()
+        .setColor('RANDOM')
+        .setTitle(title)
+        .setDescription(description)
+        .setAuthor(message.author.username)
+        .setImage();
+    }
+    else // Build embed without description
+    {
+        var eventEmbed = new Discord.MessageEmbed()
+        .setColor('RANDOM')
+        .setTitle(title)
+        .setAuthor(message.author.username)
+        .setImage();
+    }
+    // Sending the embed back and then . . .
     message.channel.send(eventEmbed).then(embedMessage => {
+        // Adding the reactions after the embed has been created
         embedMessage.react("👍");
         embedMessage.react("👎");
         embedMessage.react("🤔");
