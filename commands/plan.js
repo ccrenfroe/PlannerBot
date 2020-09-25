@@ -26,7 +26,7 @@ async function collector(message,limit)
         .then((collected) => {
             if (collected.first().content.length < limit)
             {
-                message.author.send(`I collected the message : ${collected.first().content}`);
+                //console.log(`I collected the message : ${collected.first().content}`);
                 return collected.first().content;
             }
             //else
@@ -50,5 +50,9 @@ async function embedBuilder(message)
     .setAuthor(message.author.username)
     .setDescription(description)
     .setImage();
-    message.channel.send(eventEmbed);
+    message.channel.send(eventEmbed).then(embedMessage => {
+        embedMessage.react("👍");
+        embedMessage.react("👎");
+        embedMessage.react("🤔");
+    });
 }
