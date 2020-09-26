@@ -1,3 +1,7 @@
+/**
+ * @TODO - Change to collect messages from the user only through dms, and then output the reulting embed to the channel the command was called in.
+ */
+
 // Modules
 const Discord = require('discord.js')
 
