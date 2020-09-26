@@ -64,13 +64,15 @@ async function embedBuilder(message)
     const title = await collector(message,200);
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     const description = await collector(message,2000,true);
+    let participants = "None"
     if (description != null) // Build embed with description
     {
         var eventEmbed = new Discord.MessageEmbed()
         .setColor('RANDOM')
         .setTitle(title)
-        .setDescription(description)
         .setAuthor(message.author.username)
+        .setDescription(description)
+        .addField("Participants", participants)
         .setImage();
     }
     else // Build embed without description
@@ -79,13 +81,31 @@ async function embedBuilder(message)
         .setColor('RANDOM')
         .setTitle(title)
         .setAuthor(message.author.username)
+        .addField("Participants", participants)
         .setImage();
     }
+    
     // Sending the embed back and then . . .
     message.channel.send(eventEmbed).then(embedMessage => {
         // Adding the reactions after the embed has been created
         embedMessage.react("👍");
         embedMessage.react("👎");
         embedMessage.react("🤔");
+    });
+
+    var reactions = ['👍','👎','🤔' ]
+    const filter = (reaction, user) => {
+        return !user.bot && reactions.includes(reaction.emoji.name);
+    };
+    
+    const collector = message.createReactionCollector(filter, { max: 2 });
+    
+    collector.on('collect', (reaction, user) => {
+        console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+        // Some if, else if, else blocks here determining what to do based off of the emoji
+    });
+    
+    collector.on('end', collected => {
+        console.log(`Collected ${collected.size} items`);
     });
 }
