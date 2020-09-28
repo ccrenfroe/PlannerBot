@@ -89,27 +89,31 @@ async function embedBuilder(message)
         .setImage();
     }
     
+
+    var reactions = ['👍','👎','🤔' ]; // Valid reactions for filter
+
     // Sending the embed back and then . . .
-    message.channel.send(eventEmbed).then(embedMessage => {
+    message.channel.send(eventEmbed)
+    .then(embedMessage => {
         // Adding the reactions after the embed has been created
         embedMessage.react("👍");
         embedMessage.react("👎");
         embedMessage.react("🤔");
-    });
 
-    var reactions = ['👍','👎','🤔' ]
-    const filter = (reaction, user) => {
-        return !user.bot && reactions.includes(reaction.emoji.name);
-    };
+        const filter = (reaction, user) => {
+            return !user.bot && reactions.includes(reaction.emoji.name);
+        };
+        const collector = embedMessage.createReactionCollector(filter, { max: 1 });
     
-    const collector = message.createReactionCollector(filter, { max: 2 });
-    
-    collector.on('collect', (reaction, user) => {
-        console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-        // Some if, else if, else blocks here determining what to do based off of the emoji
-    });
-    
-    collector.on('end', collected => {
-        console.log(`Collected ${collected.size} items`);
-    });
+        collector.on('collect', (reaction, user) => {
+            console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+            // Some if, else if, else blocks here determining what to do based off of the emoji
+        });
+        
+        collector.on('end', collected => {
+            const collector = embedMessage.createReactionCollector(filter, { max: 1 });
+            console.log(`Collected ${collected.size} items`);
+        });
+    })
+    .catch(console.error);
 }
