@@ -27,7 +27,7 @@ module.exports = {
  */
 async function collector(message,limit, none=false) 
 {
-    return message.channel.awaitMessages(response => response.author.id === message.author.id, 
+    return message.author.dmChannel.awaitMessages(response => response.author.id === message.author.id, 
         {
             max: 1,
             time: 60000,
@@ -64,7 +64,7 @@ async function collector(message,limit, none=false)
  */
 async function embedBuilder(message)
 {
-    message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
+    await message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
     const title = await collector(message,200);
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     const description = await collector(message,2000,true);
