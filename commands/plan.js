@@ -36,7 +36,6 @@ async function collector(message,limit, none=false)
         .then((collected) => {
             if (none === true && collected.first().content.toLowerCase() == "none")
             {
-                console.log("entered");
                 return null;
             }
             else if (collected.first().content.length < limit)
@@ -88,10 +87,11 @@ async function embedBuilder(message)
         .addField("Participants", participants)
         .setImage();
     }
+    message.author.send("Event successfully created!");
     
 
     var reactions = ['👍','👎','🤔' ]; // Valid reactions for filter
-
+    var attendees = []; // People attending the event
     // Sending the embed back and then . . .
     message.channel.send(eventEmbed)
     .then(embedMessage => {
@@ -100,19 +100,18 @@ async function embedBuilder(message)
         embedMessage.react("👎");
         embedMessage.react("🤔");
 
+        // Reaction Collector to gather the users attending the event.
         const filter = (reaction, user) => {
             return !user.bot && reactions.includes(reaction.emoji.name);
         };
-        const collector = embedMessage.createReactionCollector(filter, { max: 1 });
     
-        collector.on('collect', (reaction, user) => {
-            console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-            // Some if, else if, else blocks here determining what to do based off of the emoji
-        });
-        
-        collector.on('end', collected => {
-            const collector = embedMessage.createReactionCollector(filter, { max: 1 });
-            console.log(`Collected ${collected.size} items`);
+        rc = new Discord.ReactionCollector(embedMessage, filter);
+
+        rc.on('collect', (reaction, user) => {
+            console.log(user + " reacted with a " + reaction);
+            attendees.push(user); // Add new user the the attendees list
+            console.log(attendees); // Debugging
+            reaction.users.remove(user); // Reset reaction count back to 1
         });
     })
     .catch(console.error);
