@@ -51,6 +51,8 @@ Database -  MySQL database running on the Raspberry Pi.
 
 [RAWG Video Games Database](https://rapidapi.com/accujazz/api/rawg-video-games-database/details) -  I can use this to help build up an embed with the discord bot and gather details about the game, an image of it, etc. NOTE: When making requests to the API, need to use '-' instead of a space for titles. For example, Among Us is 'Among-Us'.
 
+https://discordapi.com/permissions.html - Site to change permissions for bot if ever needed.
+
 ### Ideas
 
 Different color embed depending on event.
