@@ -67,7 +67,6 @@ async function embedBuilder(message)
     const title = await collector(message,200);
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     const description = await collector(message,2000,true);
-    let participants = "None"
     if (description != null) // Build embed with description
     {
         var eventEmbed = new Discord.MessageEmbed()
@@ -75,7 +74,7 @@ async function embedBuilder(message)
         .setTitle(title)
         .setAuthor(message.author.username)
         .setDescription(description)
-        .addField("Participants", participants)
+        .addField("Participants", "None")
         .setImage();
     }
     else // Build embed without description
@@ -84,14 +83,14 @@ async function embedBuilder(message)
         .setColor('RANDOM')
         .setTitle(title)
         .setAuthor(message.author.username)
-        .addField("Participants", participants)
+        .addField("Participants", "None")
         .setImage();
     }
     message.author.send("Event successfully created!");
     
 
     var reactions = ['👍','👎','🤔' ]; // Valid reactions for filter
-    var attendees = []; // People attending the event
+    var participants = []; // People attending the event
     // Sending the embed back and then . . .
     message.channel.send(eventEmbed)
     .then(embedMessage => {
@@ -99,7 +98,7 @@ async function embedBuilder(message)
         embedMessage.react("👍");
         embedMessage.react("👎");
         embedMessage.react("🤔");
-
+        //console.log(eventEmbed);
         // Reaction Collector to gather the users attending the event.
         const filter = (reaction, user) => {
             return !user.bot && reactions.includes(reaction.emoji.name);
@@ -108,10 +107,51 @@ async function embedBuilder(message)
         rc = new Discord.ReactionCollector(embedMessage, filter);
 
         rc.on('collect', (reaction, user) => {
-            console.log(user + " reacted with a " + reaction);
-            attendees.push(user); // Add new user the the attendees list
-            console.log(attendees); // Debugging
-            reaction.users.remove(user); // Reset reaction count back to 1
+            //console.log(user + " reacted with a " + reaction);
+            console.log(reaction.emoji);
+            if(reaction.emoji.name === "👍")
+            {
+                /// @TODO : IMPLEMENT LOOPING OVER THE ARRAY TO CHECK FOR USER. WILL TAKE USER OUT USING SPLICE
+                let new_user = true;
+                // Check if they are already on the list
+                for (let participant of participants)
+                {
+                    console.log("PARTICIPANTS HERE");
+                    console.log(participants);
+                    console.log("CURRENT PARTICIPANT");
+                    console.log(participant);
+                    console.log(user.id)
+                    console.log(user.id === participant.id);
+
+                    
+                    if (user.id === participant.id) // If user is found in the list, remove them and update.
+                    {
+                        participants.remove(user); // Remove user from the list
+                        // console.log("PARTICIPANTS HERE");
+                        // console.log(participants); // Debugging
+                        reaction.users.remove(user); // Reset reaction count back to 1
+                        // Update the embed
+                        eventEmbed.fields.find(f => f.name === "Participants").value = participants; // Updating participants
+                        embedMessage.edit(eventEmbed);
+                        new_user = false;
+                        break;
+                    }
+                    else // continue to loop through the whole list
+                    {
+                        continue;
+                    }
+                }
+                if(new_user) // If user not in list, add them and update.
+                {
+                    participants.push(user); // Add new user the participants list
+                    console.log("PARTICIPANTS HERE");
+                    console.log(participants); // Debugging
+                    reaction.users.remove(user); // Reset reaction count back to 1
+                    // Update the embed
+                    eventEmbed.fields.find(f => f.name === "Participants").value = participants; // Updating participants
+                    embedMessage.edit(eventEmbed);
+                }
+            }
         });
     })
     .catch(console.error);
