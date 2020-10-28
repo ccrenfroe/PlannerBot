@@ -103,32 +103,24 @@ async function embedBuilder(message)
         const filter = (reaction, user) => {
             return !user.bot && reactions.includes(reaction.emoji.name);
         };
-    
+         
         rc = new Discord.ReactionCollector(embedMessage, filter);
 
         rc.on('collect', (reaction, user) => {
             //console.log(user + " reacted with a " + reaction);
-            console.log(reaction.emoji);
+            // console.log(reaction.emoji);
             if(reaction.emoji.name === "👍")
             {
                 /// @TODO : IMPLEMENT LOOPING OVER THE ARRAY TO CHECK FOR USER. WILL TAKE USER OUT USING SPLICE
                 let new_user = true;
                 // Check if they are already on the list
-                for (let participant of participants)
+                for (let participant in participants)
                 {
-                    console.log("PARTICIPANTS HERE");
-                    console.log(participants);
-                    console.log("CURRENT PARTICIPANT");
-                    console.log(participant);
-                    console.log(user.id)
-                    console.log(user.id === participant.id);
-
-                    
-                    if (user.id === participant.id) // If user is found in the list, remove them and update.
+                    if (user.id === participants[participant].id) // If user is found in the list, remove them and update.
                     {
-                        participants.remove(user); // Remove user from the list
-                        // console.log("PARTICIPANTS HERE");
-                        // console.log(participants); // Debugging
+                        console.log(participant);
+                        console.log(participants);
+                        participants.splice(user,1); // Remove user from the list
                         reaction.users.remove(user); // Reset reaction count back to 1
                         // Update the embed
                         eventEmbed.fields.find(f => f.name === "Participants").value = participants; // Updating participants
