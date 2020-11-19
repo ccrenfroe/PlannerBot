@@ -98,7 +98,7 @@ async function embedBuilder(message)
         embedMessage.react("👍");
         embedMessage.react("👎");
         embedMessage.react("🤔");
-        //console.log(eventEmbed);
+
         // Reaction Collector to gather the users attending the event.
         const filter = (reaction, user) => {
             return !user.bot && reactions.includes(reaction.emoji.name);
@@ -118,12 +118,16 @@ async function embedBuilder(message)
                 {
                     if (user.id === participants[participant].id) // If user is found in the list, remove them and update.
                     {
-                        console.log(participant);
-                        console.log(participants);
-                        participants.splice(user,1); // Remove user from the list
+                        console.log("I HAVE ENTERED THE LOOP WHERE A USER WAS FOUND IN THE LIST")
+                        console.log("THIS IS THE PARTICIPANT\n", participants[participant].id);
+                        console.log("THIS IS ALL OF THE PARTICIPANTS\n", participants);
+                        participants.splice(participant,1); // Remove user from the list
+                        console.log("PARTICIPANTS AFTER SPLICE\n", participants)
                         reaction.users.remove(user); // Reset reaction count back to 1
+                        // Updating participants
+                        if (participants.length == 0) { eventEmbed.fields.find(f => f.name === "Participants").value = "None"; }
+                        else { eventEmbed.fields.find(f => f.name === "Participants").value = participants; }
                         // Update the embed
-                        eventEmbed.fields.find(f => f.name === "Participants").value = participants; // Updating participants
                         embedMessage.edit(eventEmbed);
                         new_user = false;
                         break;
