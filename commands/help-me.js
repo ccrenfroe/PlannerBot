@@ -11,7 +11,7 @@ module.exports = {
     // The command operations go here.
 	execute(message, args) {
 		const data = [];
-		const { commands } = message.client;
+		const commands = message.client;
 
 		if (!args.length)
 		{
