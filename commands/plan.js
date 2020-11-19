@@ -75,6 +75,8 @@ async function embedBuilder(message)
         .setAuthor(message.author.username)
         .setDescription(description)
         .addField("Participants", "None")
+        .addField("Not Attending", "None")
+        .addField("Tentative", "None")
         .setImage();
     }
     else // Build embed without description
@@ -84,13 +86,17 @@ async function embedBuilder(message)
         .setTitle(title)
         .setAuthor(message.author.username)
         .addField("Participants", "None")
+        .addField("Not Attending", "None")
+        .addField("Tentative", "None")
         .setImage();
     }
     message.author.send("Event successfully created!");
     
 
-    var reactions = ['👍','👎','🤔' ]; // Valid reactions for filter
-    var participants = []; // People attending the event
+    var reactions = {'👍' : {"embed_field":"Participants","people":[]},
+                     '👎' : {"embed_field":"Not Attending","people":[]},
+                     '🤔' : {"embed_field":"Tentative","people":[]},
+                    }; // Valid reactions for filter
     // Sending the embed back and then . . .
     message.channel.send(eventEmbed)
     .then(embedMessage => {
@@ -101,53 +107,42 @@ async function embedBuilder(message)
 
         // Reaction Collector to gather the users attending the event.
         const filter = (reaction, user) => {
-            return !user.bot && reactions.includes(reaction.emoji.name);
+            return !user.bot && reactions[reaction.emoji.name];
         };
          
         rc = new Discord.ReactionCollector(embedMessage, filter);
 
         rc.on('collect', (reaction, user) => {
-            //console.log(user + " reacted with a " + reaction);
-            // console.log(reaction.emoji);
-            if(reaction.emoji.name === "👍")
-            {
-                /// @TODO : IMPLEMENT LOOPING OVER THE ARRAY TO CHECK FOR USER. WILL TAKE USER OUT USING SPLICE
-                let new_user = true;
-                // Check if they are already on the list
-                for (let participant in participants)
-                {
-                    if (user.id === participants[participant].id) // If user is found in the list, remove them and update.
-                    {
-                        console.log("I HAVE ENTERED THE LOOP WHERE A USER WAS FOUND IN THE LIST")
-                        console.log("THIS IS THE PARTICIPANT\n", participants[participant].id);
-                        console.log("THIS IS ALL OF THE PARTICIPANTS\n", participants);
-                        participants.splice(participant,1); // Remove user from the list
-                        console.log("PARTICIPANTS AFTER SPLICE\n", participants)
-                        reaction.users.remove(user); // Reset reaction count back to 1
-                        // Updating participants
-                        if (participants.length == 0) { eventEmbed.fields.find(f => f.name === "Participants").value = "None"; }
-                        else { eventEmbed.fields.find(f => f.name === "Participants").value = participants; }
-                        // Update the embed
-                        embedMessage.edit(eventEmbed);
-                        new_user = false;
-                        break;
-                    }
-                    else // continue to loop through the whole list
-                    {
-                        continue;
-                    }
-                }
-                if(new_user) // If user not in list, add them and update.
-                {
-                    participants.push(user); // Add new user the participants list
-                    console.log("PARTICIPANTS HERE");
-                    console.log(participants); // Debugging
-                    reaction.users.remove(user); // Reset reaction count back to 1
-                    // Update the embed
-                    eventEmbed.fields.find(f => f.name === "Participants").value = participants; // Updating participants
-                    embedMessage.edit(eventEmbed);
-                }
-            }
+                        let emoji = reaction.emoji.name
+                        let new_user = true;
+                        // Check if they are already in the list
+                        for (let person in reactions[emoji].people)
+                        {
+                            if (user.id === reactions[emoji].people[person].id) // If user is found in the list, remove them and update.
+                            {
+                                reactions[emoji].people.splice(person,1); // Remove user from the list
+                                reaction.users.remove(user); // Reset reaction count back to 1
+                                // Updating participants
+                                if (reactions[emoji].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = "None"; }
+                                else { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; }
+                                // Update the embed
+                                embedMessage.edit(eventEmbed);
+                                new_user = false;
+                                break;
+                            }
+                            else // continue to loop through the whole list
+                            {
+                                continue;
+                            }
+                        }
+                        if(new_user) // If user not in list, add them and update.
+                        {
+                            reactions[emoji].people.push(user); // Add new user the reactions list
+                            reaction.users.remove(user); // Reset reaction count back to 1
+                            // Update the embed
+                            eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; // Updating participants
+                            embedMessage.edit(eventEmbed);
+                        }
         });
     })
     .catch(console.error);
