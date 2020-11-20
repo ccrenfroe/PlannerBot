@@ -1,9 +1,6 @@
-/**
- * @TODO - Change to collect messages from the user only through dms, and then output the reulting embed to the channel the command was called in.
- */
-
 // Modules
-const Discord = require('discord.js')
+const Discord = require('discord.js');
+const unirest = require('unirest');
 
 module.exports = {
 	name: 'plan',
@@ -40,14 +37,13 @@ async function collector(message,limit, none=false)
             }
             else if (collected.first().content.length < limit)
             {
-                //console.log(`I collected the message : ${collected.first().content}`); // Debugging line
                 return collected.first().content;
             }
 
             else
             {
-                message.author.send("Invalid input. Please try again. (Must be below 200 characters)");
-                return collector(message,200);
+                message.author.send("Invalid input. Please try again. (Must be below " + limit + " characters)");
+                return collector(message,limit);
             }
 
         })
@@ -57,7 +53,7 @@ async function collector(message,limit, none=false)
 }
 
 /**
- * Collect the user input.
+ * Collect user input to build an embed and manage interactions with it.
  * @param  {Discord.Message}        message          
  * @return {Discord.MessageEmbed}               The built up embed.
  */
@@ -65,6 +61,10 @@ async function embedBuilder(message)
 {
     await message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
     const title = await collector(message,200);
+    message.author.send("Please enter the name of the game. (Must be shorter than 200 characters)\nEnter \"None\" if this event does not have a game. ");
+    const game_title = await collector(message,200,true);
+    game = queryRAWGDatabase(game_title);
+    console.log(game);
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     const description = await collector(message,2000,true);
     if (description != null) // Build embed with description
@@ -77,7 +77,7 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage();
+        .setImage(game.background_image);
     }
     else // Build embed without description
     {
@@ -88,11 +88,11 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage();
+        .setImage(game.background_image);
     }
     message.author.send("Event successfully created!");
     
-
+    // Dictionary of reactions
     var reactions = {'👍' : {"embed_field":"Participants","people":[]},
                      '👎' : {"embed_field":"Not Attending","people":[]},
                      '🤔' : {"embed_field":"Tentative","people":[]},
@@ -122,7 +122,7 @@ async function embedBuilder(message)
                             {
                                 reactions[emoji].people.splice(person,1); // Remove user from the list
                                 reaction.users.remove(user); // Reset reaction count back to 1
-                                // Updating participants
+                                // Updating corresponding embed field
                                 if (reactions[emoji].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = "None"; }
                                 else { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; }
                                 // Update the embed
@@ -140,10 +140,30 @@ async function embedBuilder(message)
                             reactions[emoji].people.push(user); // Add new user the reactions list
                             reaction.users.remove(user); // Reset reaction count back to 1
                             // Update the embed
-                            eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; // Updating participants
+                            eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; // Updating corresponding embed field
                             embedMessage.edit(eventEmbed);
                         }
         });
     })
     .catch(console.error);
+}
+
+function queryRAWGDatabase(title)
+{
+    title = title.split(' ').join('-');
+    var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
+
+    req.headers({
+        "x-rapidapi-key": process.env.RAWG_GAME_DATABASE_KEY,
+        "x-rapidapi-host": "rawg-video-games-database.p.rapidapi.com",
+        "useQueryString": true
+    });
+    req.end(function (result) {
+        if (result.error)
+        {
+            return null;
+        };
+        return result.body
+    });
+    return // Return it here!;
 }

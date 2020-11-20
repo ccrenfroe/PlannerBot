@@ -18,7 +18,8 @@
   "homepage": "https://github.com/ccrenfroe/PlannerBot#readme",
   "dependencies": {
     "discord.js": "^12.3.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "unirest": "^0.6.0"
   },
   "devDependencies": {
     "eslint": "^7.8.1"
