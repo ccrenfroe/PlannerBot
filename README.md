@@ -25,9 +25,7 @@ A secondary goal could be to add some accountability to server members by adding
 
 Frontend - User typing in commands to the bot.
 
-Web Server - Raspberry Pi running the bot. Here the commands will be received and processed, and requests to the database will be made as needed.
-
-Database -  MySQL database running on the Raspberry Pi.
+Web Server - Raspberry Pi running the bot. Here the commands will be received and processed.
 
 ### Sources
 
