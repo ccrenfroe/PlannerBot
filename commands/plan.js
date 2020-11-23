@@ -150,20 +150,23 @@ async function embedBuilder(message)
 
 function queryRAWGDatabase(title)
 {
-    title = title.split(' ').join('-');
-    var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
+    return new Promise((resolve, reject) =>
+    {
+        title = title.split(' ').join('-');
+        var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
 
-    req.headers({
-        "x-rapidapi-key": process.env.RAWG_GAME_DATABASE_KEY,
-        "x-rapidapi-host": "rawg-video-games-database.p.rapidapi.com",
-        "useQueryString": true
-    });
-    req.end(function (result) {
-        if (result.error)
-        {
-            return null;
-        };
-        return result.body
-    });
-    return // Return it here!;
+        req.headers({
+            "x-rapidapi-key": process.env.RAWG_GAME_DATABASE_KEY,
+            "x-rapidapi-host": "rawg-video-games-database.p.rapidapi.com",
+            "useQueryString": true
+        });
+        req.end(function (result) {
+            if (result.error)
+            {
+                return reject(response.error);
+            };
+            return result.body
+        });
+        return resolve(response.body)// Return it here!;
+    })
 }
