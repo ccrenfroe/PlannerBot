@@ -67,8 +67,8 @@ async function embedBuilder(message)
 
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     let description = await collector(message,2000,true);
-    if (description = null){ description = "";}
-
+    if (description == null){ description = "";}
+    console.log(description);
     message.author.send("Building embed . . .");
     if (game_title != null)
     {
@@ -129,10 +129,7 @@ async function embedBuilder(message)
                             if (user.id === reactions[emoji].people[person].id) // If user is found in the list, remove them and update.
                             {
                                 new_user = false;
-                                console.log("User found in list!");
-                                console.log(reactions);
                                 reactions[emoji].people.splice(person,1); // Remove user from the list
-                                console.log(reactions);
                                 reaction.users.remove(user); // Reset reaction count back to 1
                                 // Updating corresponding embed field
                                 if (reactions[emoji].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = "None"; }
@@ -145,7 +142,6 @@ async function embedBuilder(message)
                         }
                         if(new_user) // If user not in list, add them and update.
                         {
-                            console.log("In the new user loop!");
                             reactions[emoji].people.push(user); // Add new user the reactions list
                             reaction.users.remove(user); // Reset reaction count back to 1
                             // Update the embed
@@ -165,7 +161,7 @@ async function embedBuilder(message)
 function queryRAWGDatabase(title)
 {
     title = title.split(' ').join('-');
-    var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
+    let req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
     return new Promise((resolve, reject) => {
         req.headers({
             "x-rapidapi-key": process.env.RAWG_GAME_DATABASE_KEY,
@@ -176,10 +172,13 @@ function queryRAWGDatabase(title)
             if (result.error)
             {
                 reject(result.error);
-                let notFound = "0";
-                return notFound;
             };
             return resolve(result.body);
         });
     })
+    .catch(err => {
+        console.log(err);
+        let notFound = "0";
+        return notFound;
+    });
 }
