@@ -22,7 +22,6 @@ module.exports = {
  * @param  {Number}             limit       Max amount of characters allowed.
  * @return {String}                         The collected user input.
  * @TODO - Neaten up the embed block by changing functionality to either pass in a value or null.
- * @TODO - Fix the list updated. At the moment it is not taking people off the lists.
  */
 async function collector(message,limit, none=false) 
 {
@@ -78,7 +77,7 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage(game.background_image); // Need to fix this part
+        //.setImage(game.background_image); // Need to fix this part
     }
     else // Build embed without description
     {
@@ -89,7 +88,7 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage(game.background_image); // Need to fix this part
+        //.setImage(game.background_image); // Need to fix this part
     }
     message.author.send("Event successfully created!");
     
@@ -121,12 +120,15 @@ async function embedBuilder(message)
                         {
                             if (user.id === reactions[emoji].people[person].id) // If user is found in the list, remove them and update.
                             {
+                                new_user = false;
+                                console.log("User found in list!");
+                                console.log(reactions);
                                 reactions[emoji].people.splice(person,1); // Remove user from the list
+                                console.log(reactions);
                                 reaction.users.remove(user); // Reset reaction count back to 1
                                 // Updating corresponding embed field
                                 if (reactions[emoji].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = "None"; }
                                 else { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; }
-                                // Update the embedqueryRAWGDatabase
                             }
                             else // continue to loop through the whole list
                             {
@@ -135,12 +137,13 @@ async function embedBuilder(message)
                         }
                         if(new_user) // If user not in list, add them and update.
                         {
+                            console.log("In the new user loop!");
                             reactions[emoji].people.push(user); // Add new user the reactions list
                             reaction.users.remove(user); // Reset reaction count back to 1
                             // Update the embed
                             eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; // Updating corresponding embed field
-                            embedMessage.edit(eventEmbed);
                         }
+                        embedMessage.edit(eventEmbed); // Update the embed
         });
     })
     .catch(console.error);
