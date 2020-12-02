@@ -21,6 +21,8 @@ module.exports = {
  * @param  {Discord.Message}    message     
  * @param  {Number}             limit       Max amount of characters allowed.
  * @return {String}                         The collected user input.
+ * @TODO - Neaten up the embed block by changing functionality to either pass in a value or null.
+ * @TODO - Fix the list updated. At the moment it is not taking people off the lists.
  */
 async function collector(message,limit, none=false) 
 {
@@ -63,12 +65,11 @@ async function embedBuilder(message)
     const title = await collector(message,200);
     message.author.send("Please enter the name of the game. (Must be shorter than 200 characters)\nEnter \"None\" if this event does not have a game. ");
     const game_title = await collector(message,200,true);
-    game = queryRAWGDatabase(game_title);
-    console.log(game);
+    if (game_title != null){let game = await queryRAWGDatabase(game_title);}
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
     const description = await collector(message,2000,true);
     if (description != null) // Build embed with description
-    {
+    { // sets can be null, so I could get this down to only one block and just set variables to null instead.
         var eventEmbed = new Discord.MessageEmbed()
         .setColor('RANDOM')
         .setTitle(title)
@@ -77,7 +78,7 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage(game.background_image);
+        .setImage(game.background_image); // Need to fix this part
     }
     else // Build embed without description
     {
@@ -88,7 +89,7 @@ async function embedBuilder(message)
         .addField("Participants", "None")
         .addField("Not Attending", "None")
         .addField("Tentative", "None")
-        .setImage(game.background_image);
+        .setImage(game.background_image); // Need to fix this part
     }
     message.author.send("Event successfully created!");
     
@@ -125,10 +126,7 @@ async function embedBuilder(message)
                                 // Updating corresponding embed field
                                 if (reactions[emoji].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = "None"; }
                                 else { eventEmbed.fields.find(f => f.name === reactions[emoji].embed_field).value = reactions[emoji].people; }
-                                // Update the embed
-                                embedMessage.edit(eventEmbed);
-                                new_user = false;
-                                break;
+                                // Update the embedqueryRAWGDatabase
                             }
                             else // continue to loop through the whole list
                             {
@@ -150,11 +148,9 @@ async function embedBuilder(message)
 
 function queryRAWGDatabase(title)
 {
-    return new Promise((resolve, reject) =>
-    {
-        title = title.split(' ').join('-');
-        var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
-
+    title = title.split(' ').join('-');
+    var req = unirest("GET", "https://rawg-video-games-database.p.rapidapi.com/games/" + title);
+    return new Promise((resolve, reject) => {
         req.headers({
             "x-rapidapi-key": process.env.RAWG_GAME_DATABASE_KEY,
             "x-rapidapi-host": "rawg-video-games-database.p.rapidapi.com",
@@ -163,10 +159,9 @@ function queryRAWGDatabase(title)
         req.end(function (result) {
             if (result.error)
             {
-                return reject(response.error);
+                return null;
             };
-            return result.body
+            return resolve(result.body);
         });
-        return resolve(response.body)// Return it here!;
     })
 }
