@@ -21,7 +21,6 @@ module.exports = {
  * @param  {Discord.Message}    message     
  * @param  {Number}             limit       Max amount of characters allowed.
  * @return {String}                         The collected user input.
- * @TODO - Neaten up the embed block by changing functionality to either pass in a value or null.
  */
 async function collector(message,limit, none=false) 
 {
@@ -61,35 +60,44 @@ async function collector(message,limit, none=false)
 async function embedBuilder(message)
 {
     await message.author.send("Lets get to work!\nPlease enter the title of your event. (Must be shorter than 200 characters)");
-    const title = await collector(message,200);
+    let title = await collector(message,200);
+
     message.author.send("Please enter the name of the game. (Must be shorter than 200 characters)\nEnter \"None\" if this event does not have a game. ");
-    const game_title = await collector(message,200,true);
-    if (game_title != null){let game = await queryRAWGDatabase(game_title);}
+    let game_title = await collector(message,200,true);
+
     message.author.send("Please enter a short description of your event. (Must be shorter than 2000 characters)\nEnter \"None\" if no. ");
-    const description = await collector(message,2000,true);
-    if (description != null) // Build embed with description
-    { // sets can be null, so I could get this down to only one block and just set variables to null instead.
-        var eventEmbed = new Discord.MessageEmbed()
-        .setColor('RANDOM')
-        .setTitle(title)
-        .setAuthor(message.author.username)
-        .setDescription(description)
-        .addField("Participants", "None")
-        .addField("Not Attending", "None")
-        .addField("Tentative", "None")
-        //.setImage(game.background_image); // Need to fix this part
-    }
-    else // Build embed without description
+    let description = await collector(message,2000,true);
+    if (description = null){ description = "";}
+
+    message.author.send("Building embed . . .");
+    if (game_title != null)
     {
-        var eventEmbed = new Discord.MessageEmbed()
-        .setColor('RANDOM')
-        .setTitle(title)
-        .setAuthor(message.author.username)
-        .addField("Participants", "None")
-        .addField("Not Attending", "None")
-        .addField("Tentative", "None")
-        //.setImage(game.background_image); // Need to fix this part
+        var game = await queryRAWGDatabase(game_title);
+        console.log(game);
+        if (game == "0")
+        {
+            message.author.send("Game could not be found.");
+            var game_image = null;
+        }
+        else
+        {
+            var game_image = game.background_image;
+        }
     }
+    else // No game given.
+    {
+        var game_image = null;
+    }
+    var eventEmbed = new Discord.MessageEmbed()
+    .setColor('RANDOM')
+    .setTitle(title)
+    .setAuthor(message.author.username)
+    .setDescription(description)
+    .addField("Participants", "None")
+    .addField("Not Attending", "None")
+    .addField("Tentative", "None")
+    .setImage(game_image);
+
     message.author.send("Event successfully created!");
     
     // Dictionary of reactions
@@ -149,6 +157,11 @@ async function embedBuilder(message)
     .catch(console.error);
 }
 
+/**
+ * Query the RAWG Database for a given game
+ * @param  {String}    title          
+ * @return {JSON}               The response from the database.
+ */
 function queryRAWGDatabase(title)
 {
     title = title.split(' ').join('-');
@@ -162,7 +175,9 @@ function queryRAWGDatabase(title)
         req.end(function (result) {
             if (result.error)
             {
-                return null;
+                reject(result.error);
+                let notFound = "0";
+                return notFound;
             };
             return resolve(result.body);
         });
