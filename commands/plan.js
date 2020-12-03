@@ -73,8 +73,7 @@ async function embedBuilder(message)
     if (game_title != null)
     {
         var game = await queryRAWGDatabase(game_title);
-        console.log(game);
-        if (game == "0")
+        if (game === "0")
         {
             message.author.send("Game could not be found.");
             var game_image = null;
@@ -86,6 +85,7 @@ async function embedBuilder(message)
     }
     else // No game given.
     {
+        game_title = "None";
         var game_image = null;
     }
     var eventEmbed = new Discord.MessageEmbed()
@@ -96,7 +96,9 @@ async function embedBuilder(message)
     .addField("Participants", "None")
     .addField("Not Attending", "None")
     .addField("Tentative", "None")
-    .setImage(game_image);
+    .addField("Game Title",game_title)
+    .setImage(game_image)
+    .setTimestamp()
 
     message.author.send("Event successfully created!");
     
@@ -142,6 +144,21 @@ async function embedBuilder(message)
                         }
                         if(new_user) // If user not in list, add them and update.
                         {
+                            // First check if they are in another list already.
+                            for(let field in reactions)
+                            {
+                                console.log(reactions[field].people);
+                                for(let person in reactions[field].people)
+                                {
+                                    if(user.id === reactions[field].people[person].id)
+                                    {
+                                        reactions[field].people.splice(person,1); // Remove user from the list
+                                        // Updating corresponding embed field
+                                        if (reactions[field].people.length == 0) { eventEmbed.fields.find(f => f.name === reactions[field].embed_field).value = "None"; }
+                                        else { eventEmbed.fields.find(f => f.name === reactions[field].embed_field).value = reactions[field].people; }
+                                    }
+                                }
+                            }
                             reactions[emoji].people.push(user); // Add new user the reactions list
                             reaction.users.remove(user); // Reset reaction count back to 1
                             // Update the embed
