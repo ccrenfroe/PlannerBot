@@ -4,7 +4,7 @@ const unirest = require('unirest');
 
 module.exports = {
 	name: 'plan',
-    description: 'Create an embed for a newly planned event.\nFor event, choose \`game\` or \`other\`. For \`game\`, enter the full title of the game. For \`other\`, enter the chosen event name.\nNext enter a description.\nFinally, enter the time the event will take place.',
+    description: 'Create an embed for a newly planned game event.\nEnter the full title of the game.\nNext enter a description.\nFinally, enter the time the event will take place.',
     args:false,
     cooldown: 10,
     usage: '[Event] [Title] [Description] [Time]',

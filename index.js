@@ -25,7 +25,7 @@ client.on('message', message => {
 	// Error checking. Checking if the wrong prefix is used or if the message was sent by another bot.
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 	const args = message.content.slice(prefix.length).trim().split(/ +/); // Takes off the prefix, returns array of args. Regex to get rid of repeated spaces.
-	const commandName = args.shift().toLowerCase(); // Takes out the command(the first arg) from the array and returns it to command variable.
+	const commandName = args.shift().toLowerCase(); // Takes out the command(the first arg) from the array and returns it to commandName variable.
 
 	const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)); // Looks for the command or the alias.
 	if (!command) return; // Stops if it could not be found.
